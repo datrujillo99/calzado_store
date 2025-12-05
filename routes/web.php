@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CalzadoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ClienteController; // <--- ¡ESTA ES LA LÍNEA QUE FALTA!
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\AdminVentaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +31,15 @@ Route::resource('calzados', CalzadoController::class);
 // 4. CRUD DE CLIENTES (Ahora funcionará porque ya lo importamos arriba)
 Route::resource('clientes', ClienteController::class);
 
-// 5. PANEL DE ADMINISTRACIÓN
+// 4.5. CRUD DE CATEGORÍAS (Solo admin)
+Route::resource('categorias', CategoriaController::class);
+
+// 4.6. RUTAS DE VENTAS PARA ADMIN
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('/ventas', [AdminVentaController::class, 'index'])->name('ventas.index');
+    Route::get('/ventas/{id}', [AdminVentaController::class, 'show'])->name('ventas.show');
+    Route::put('/ventas/{id}/estado', [AdminVentaController::class, 'actualizarEstado'])->name('ventas.actualizar-estado');
+});
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
 
 // 6. RUTA HOME

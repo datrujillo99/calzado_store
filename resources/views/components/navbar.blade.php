@@ -27,20 +27,75 @@
                 </li>
                 @auth
                     @if (auth()->user()->is_admin)
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-chart-line"></i> Administración
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cog"></i> Administración
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('calzados.index') }}">
-                                <i class="fas fa-box"></i> Productos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('clientes.index') }}">
-                                <i class="fas fa-users"></i> Clientes
-                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                        <i class="fas fa-chart-line"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#">
+                                        <i class="fas fa-box"></i> Productos
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('calzados.index') }}">
+                                                <i class="fas fa-list"></i> Ver Todos
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('calzados.create') }}">
+                                                <i class="fas fa-plus-circle"></i> Agregar Producto
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#">
+                                        <i class="fas fa-tags"></i> Categorías
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('categorias.index') }}">
+                                                <i class="fas fa-list"></i> Ver Todas
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('categorias.create') }}">
+                                                <i class="fas fa-plus-circle"></i> Crear Categoría
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('clientes.index') }}">
+                                        <i class="fas fa-users"></i> Clientes
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('admin.ventas.index') }}">
+                                        <i class="fas fa-file-invoice-dollar"></i> Ventas
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-chart-bar"></i> Reportes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-cogs"></i> Configuración
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     @endif
                 @endauth

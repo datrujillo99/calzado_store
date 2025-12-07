@@ -23,6 +23,9 @@ class CalzadoController extends Controller
             $query->where('categoria_id', $request->categoria_id);
         }
 
+        // Ordenar del más reciente al más antiguo
+        $query->orderBy('created_at', 'desc');
+
         // Obtenemos los resultados y también las categorías para el menú lateral
         $calzados = $query->get();
         $categorias = Categoria::all();
@@ -38,6 +41,7 @@ class CalzadoController extends Controller
         $calzado = Calzado::with('categoria')->findOrFail($id);
         $categoriasRelacionadas = Calzado::where('categoria_id', $calzado->categoria_id)
             ->where('id', '!=', $id)
+            ->orderBy('created_at', 'desc')
             ->limit(4)
             ->get();
         
@@ -81,7 +85,7 @@ class CalzadoController extends Controller
 
             Calzado::create($datos);
 
-            return redirect()->route('admin.dashboard')->with('success', '¡Zapato registrado correctamente!');
+            return redirect()->route('calzados.index')->with('success', '¡Zapato registrado correctamente!');
 
         } catch (\Exception $e) {
             return back()->with('error', 'Error al guardar: ' . $e->getMessage())->withInput();
@@ -128,7 +132,7 @@ class CalzadoController extends Controller
 
             $calzado->update($datos);
 
-            return redirect()->route('admin.dashboard')->with('success', 'Zapato actualizado correctamente');
+            return redirect()->route('calzados.index')->with('success', 'Zapato actualizado correctamente');
 
         } catch (\Exception $e) {
             return back()->with('error', 'Error al actualizar: ' . $e->getMessage())->withInput();
@@ -150,7 +154,7 @@ class CalzadoController extends Controller
 
             $calzado->delete();
 
-            return redirect()->route('admin.dashboard')->with('success', 'Zapato eliminado correctamente');
+            return redirect()->route('calzados.index')->with('success', 'Zapato eliminado correctamente');
 
         } catch (\Exception $e) {
             return back()->with('error', 'Error al eliminar: ' . $e->getMessage());

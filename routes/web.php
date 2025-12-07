@@ -12,6 +12,8 @@ use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\AdminVentaController;
+use App\Http\Controllers\FavoritoController;
+use App\Http\Controllers\ProductoRestfulService;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,4 +61,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/perfil', function() {
         return view('perfil.index');
     })->name('perfil.index');
+});
+
+// 9. RUTAS DE FAVORITOS (protegidas por auth)
+Route::middleware('auth')->group(function () {
+    Route::post('/favoritos/agregar/{id}', [FavoritoController::class, 'agregar'])->name('favoritos.agregar');
+    Route::post('/favoritos/remover/{id}', [FavoritoController::class, 'remover'])->name('favoritos.remover');
+    Route::get('/favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');
+    Route::get('/favoritos/check/{id}', [FavoritoController::class, 'check'])->name('favoritos.check');
+});
+
+// 10. API RESTFUL PARA PRODUCTOS
+Route::prefix('api/productos')->group(function () {
+    Route::get('/', [ProductoRestfulService::class, 'listar'])->name('api.productos.listar');
+    Route::get('/buscar', [ProductoRestfulService::class, 'buscar'])->name('api.productos.buscar');
+    Route::get('/categoria/{id}', [ProductoRestfulService::class, 'listarPorCategoria'])->name('api.productos.categoria');
+    Route::get('/{id}', [ProductoRestfulService::class, 'obtener'])->name('api.productos.obtener');
 });

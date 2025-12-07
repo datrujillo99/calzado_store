@@ -1,139 +1,143 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid px-4"> {{-- Container fluido para aprovechar el ancho de pantalla --}}
-    
-    {{-- Título Principal --}}
-    <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold">Catálogo de Calzado</h1>
-        <p class="text-muted">Calidad y estilo en cada paso</p>
+<div style="max-width: 1400px; margin: 0 auto;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="page-title">Catálogo de Calzado</h1>
+            <p class="page-subtitle">Calidad y estilo en cada paso</p>
+        </div>
+        @if(Auth::check() && Auth::user()->role === 'admin')
+            <a href="{{ route('calzados.create') }}" style="padding: 0.75rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 150ms;">
+                <i class="fas fa-plus-circle"></i> Agregar Producto
+            </a>
+        @endif
     </div>
 
-    {{-- Mensajes de Éxito (Eliminar/Actualizar) --}}
+    <!-- Success Messages -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show container" role="alert">
-            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; color: #065f46;">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
         </div>
     @endif
 
-    <div class="row">
-        {{-- ========================================== --}}
-        {{-- COLUMNA IZQUIERDA: MENÚ LATERAL (FILTROS)  --}}
-        {{-- ========================================== --}}
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white fw-bold">
-                    <i class="bi bi-funnel"></i> Filtrar por Categoría
-                </div>
-                <ul class="list-group list-group-flush">
-                    {{-- Opción para quitar filtros --}}
-                    <li class="list-group-item">
-                        <a href="{{ route('catalogo') }}" class="text-decoration-none text-dark d-block py-1">
-                            Ver Todo el Catálogo
-                        </a>
-                    </li>
-                    
-                    {{-- Categorías Dinámicas --}}
-                    @foreach($categorias as $cat)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="{{ route('catalogo', ['categoria_id' => $cat->id]) }}" 
-                               class="text-decoration-none {{ request('categoria_id') == $cat->id ? 'fw-bold text-primary' : 'text-secondary' }}">
-                                {{ $cat->nombre }}
-                            </a>
-                            {{-- Contador de zapatos por categoría (opcional si lo soportas en el modelo) --}}
-                            @if(isset($cat->calzados_count))
-                                <span class="badge bg-light text-dark border">{{ $cat->calzados_count }}</span>
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
+    <!-- Filtros Horizontales -->
+    <div style="margin-bottom: 2rem; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+        <span style="font-weight: 600; color: #111827; font-size: 0.9rem;">Categorías:</span>
+        
+        <!-- All Products -->
+        <a href="{{ route('catalogo') }}" 
+           style="padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; transition: all 150ms; {{ !request('categoria_id') ? 'background: #2563eb; color: white; border: 2px solid #2563eb;' : 'background: white; color: #111827; border: 1px solid #e5e7eb;' }} cursor: pointer;">
+            <i class="fas fa-th"></i> Todos
+        </a>
+        
+        <!-- Categories -->
+        @foreach($categorias as $cat)
+            <a href="{{ route('catalogo', ['categoria_id' => $cat->id]) }}" 
+               style="padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; transition: all 150ms; {{ request('categoria_id') == $cat->id ? 'background: #2563eb; color: white; border: 2px solid #2563eb;' : 'background: white; color: #111827; border: 1px solid #e5e7eb;' }} cursor: pointer;">
+                {{ $cat->nombre }}
+            </a>
+        @endforeach
+    </div>
 
-        {{-- ========================================== --}}
-        {{-- COLUMNA DERECHA: GRILLA DE PRODUCTOS       --}}
-        {{-- ========================================== --}}
-        <div class="col-md-9">
-            <div class="row row-cols-1 row-cols-md-3 g-4">
+    <!-- Products Grid -->
+    <div style="width: 100%;">
+            @forelse($calzados as $zapato)
+                @if($loop->first)
+                    <div class="products-grid">
+                @endif
                 
-                @forelse($calzados as $zapato)
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-0 transition-hover">
-                            
-                            {{-- Imagen del Producto --}}
-                            <div style="height: 250px; overflow: hidden; position: relative;">
-                                @if($zapato->imagen)
-                                    <img src="{{ asset('storage/' . $zapato->imagen) }}" class="card-img-top w-100 h-100" style="object-fit: cover;" alt="{{ $zapato->modelo }}">
-                                @else
-                                    <img src="https://via.placeholder.com/300x250?text=Sin+Foto" class="card-img-top w-100 h-100 bg-secondary" style="object-fit: cover;">
-                                @endif
-                                
-                                {{-- Etiqueta de Categoría Flotante --}}
-                                <span class="position-absolute top-0 end-0 bg-dark text-white px-2 py-1 m-2 rounded small opacity-75">
-                                    {{ $zapato->categoria->nombre ?? 'General' }}
-                                </span>
+                <!-- Product Card -->
+                <div class="product-card">
+                    <!-- Image -->
+                    <div class="product-image">
+                        @if($zapato->imagen)
+                            <img src="{{ asset('storage/' . $zapato->imagen) }}" alt="{{ $zapato->modelo }}" />
+                        @else
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                                👟
                             </div>
+                        @endif
+                        <span class="product-badge">{{ $zapato->categoria->nombre ?? 'General' }}</span>
+                    </div>
 
-                            {{-- Información del Producto --}}
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold text-dark">{{ $zapato->marca }} {{ $zapato->modelo }}</h5>
-                                <p class="card-text text-muted small">{{ Str::limit($zapato->descripcion, 60) }}</p>
-                                
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="h4 mb-0 text-success fw-bold">${{ number_format($zapato->precio, 2) }}</span>
-                                    <span class="badge bg-light text-dark border">Talla: {{ $zapato->talla }}</span>
-                                </div>
-                                <div class="mt-2 text-muted small">
-                                    Stock: 
-                                    <span class="{{ $zapato->stock > 0 ? 'text-success' : 'text-danger fw-bold' }}">
-                                        {{ $zapato->stock > 0 ? $zapato->stock . ' disponibles' : 'Agotado' }}
-                                    </span>
-                                </div>
+                    <!-- Content -->
+                    <div class="product-content">
+                        <div class="product-category">{{ $zapato->marca }}</div>
+                        <h3 class="product-title">{{ $zapato->modelo }}</h3>
+                        <p class="product-description">{{ Str::limit($zapato->descripcion, 80) }}</p>
+                        
+                        <!-- Rating (optional) -->
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="product-rating-text">(45)</span>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="product-footer">
+                            <div class="product-price">
+                                <span class="product-price-current">${{ number_format($zapato->precio, 2) }}</span>
                             </div>
-
-                            {{-- Botones de Acción (Footer) --}}
-                            <div class="card-footer bg-white border-top-0 pb-3">
-                                @if(Auth::check() && Auth::user()->role == 'admin')
-                                    {{-- VISTA DE ADMINISTRADOR --}}
-                                    <div class="d-grid gap-2 d-md-flex">
-                                        <a href="{{ route('calzados.edit', $zapato->id) }}" class="btn btn-warning btn-sm flex-grow-1">
-                                            ✏️ Editar
-                                        </a>
-                                        
-                                        <form action="{{ route('calzados.destroy', $zapato->id) }}" method="POST" class="flex-grow-1" onsubmit="return confirm('¿Estás seguro de eliminar este producto?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm w-100">
-                                                🗑️ Eliminar
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    {{-- VISTA DE CLIENTE / INVITADO --}}
-                                    <div class="d-grid">
-                                        {{-- Apuntamos a la ruta SHOW para ver el detalle completo --}}
-                                        <a href="{{ route('calzados.show', $zapato->id) }}" class="btn btn-outline-dark">
-                                            Ver Detalles
-                                        </a>
-                                    </div>
-                                @endif
+                            <div class="product-stock" style="{{ $zapato->stock > 10 ? 'background: #e0f2fe; color: #0369a1;' : 'background: #fee2e2; color: #991b1b;' }}">
+                                {{ $zapato->stock > 0 ? $zapato->stock . ' en stock' : 'Agotado' }}
                             </div>
                         </div>
                     </div>
-                @empty
-                    {{-- Estado Vacío --}}
-                    <div class="col-12 text-center py-5">
-                        <div class="mb-3">
-                            <span class="display-1">👟</span>
+
+                    <!-- Action Buttons -->
+                    @if(Auth::check() && Auth::user()->role === 'admin')
+                        <div style="display: flex; gap: 0.5rem; padding: 1rem; border-top: 1px solid #e5e7eb; flex-wrap: wrap;">
+                            <a href="{{ route('calzados.show', $zapato->id) }}" style="flex: 1; min-width: 100px; padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 600; font-size: 0.85rem; transition: all 150ms;">
+                                👁️ Ver
+                            </a>
+                            <a href="{{ route('calzados.edit', $zapato->id) }}" style="flex: 1; min-width: 100px; padding: 0.5rem; background: #f59e0b; color: white; border: none; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 600; font-size: 0.85rem; transition: all 150ms;">
+                                ✏️ Editar
+                            </a>
+                            <form action="{{ route('calzados.destroy', $zapato->id) }}" method="POST" style="flex: 1; min-width: 100px;" onsubmit="return confirm('¿Estás seguro de eliminar este producto?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="width: 100%; padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; transition: all 150ms; cursor: pointer;">
+                                    🗑️ Eliminar
+                                </button>
+                            </form>
                         </div>
-                        <h3 class="text-muted">No se encontraron zapatos en esta categoría.</h3>
-                        <p class="text-muted">Intenta seleccionar otra categoría o ver todo el catálogo.</p>
-                        <a href="{{ route('catalogo') }}" class="btn btn-primary mt-3">Ver todo el catálogo</a>
+                    @else
+                        <button class="btn-add-cart" onclick="window.location.href='{{ route('calzados.show', $zapato->id) }}'">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </button>
+                    @endif
+                </div>
+
+                @if($loop->last)
                     </div>
-                @endforelse
-            </div>
+                @endif
+            @empty
+                <!-- Empty State -->
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: white; border-radius: 8px;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">👟</div>
+                    <h3 style="color: #9ca3af; margin-bottom: 0.5rem;">No se encontraron zapatos</h3>
+                    <p style="color: #9ca3af; margin-bottom: 1.5rem;">Intenta seleccionar otra categoría o ver todo el catálogo.</p>
+                    <a href="{{ route('catalogo') }}" style="display: inline-block; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 150ms;">
+                        Ver todo el catálogo
+                    </a>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
+
+<style>
+    @media (max-width: 768px) {
+        /* Filtros responsivos en móvil */
+        div[style*="display: flex; gap: 0.75rem"] {
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+    }
+</style>
 @endsection

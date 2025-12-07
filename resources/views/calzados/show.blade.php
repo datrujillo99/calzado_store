@@ -86,15 +86,27 @@
                 <!-- Botones de acción -->
                 <div class="d-grid gap-2 d-md-flex mb-4">
                     @if ($calzado->stock > 0)
-                        <form action="{{ route('carrito.agregar', $calzado->id) }}" method="POST" class="flex-grow-1">
-                            @csrf
-                            <button class="btn btn-primary btn-lg w-100" type="submit">
-                                <i class="fas fa-shopping-cart"></i> Agregar al carrito
+                        @if(Auth::check())
+                            <form action="{{ route('carrito.agregar', $calzado->id) }}" method="POST" class="flex-grow-1">
+                                @csrf
+                                <button class="btn btn-primary btn-lg w-100" type="submit">
+                                    <i class="fas fa-shopping-cart"></i> Agregar al carrito
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="btn btn-primary btn-lg w-100 flex-grow-1">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar sesión para comprar
+                            </a>
+                        @endif
+                        @if(Auth::check())
+                            <button class="btn btn-outline-danger btn-lg favorite-btn-detail" type="button" id="btnFavorito" data-product-id="{{ $calzado->id }}" onclick="toggleFavorite({{ $calzado->id }}, this)">
+                                <i class="far fa-heart"></i>
                             </button>
-                        </form>
-                        <button class="btn btn-outline-danger btn-lg" type="button" id="btnFavorito">
-                            <i class="fas fa-heart"></i>
-                        </button>
+                        @else
+                            <button class="btn btn-outline-danger btn-lg" type="button" disabled title="Inicia sesión para agregar a favoritos">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        @endif
                     @else
                         <button class="btn btn-secondary btn-lg" disabled>
                             <i class="fas fa-ban"></i> Producto no disponible
@@ -112,7 +124,7 @@
 
                 <!-- Admin actions -->
                 @auth
-                    @if (auth()->user()->is_admin)
+                    @if (auth()->user()->role === 'admin')
                         <div class="mt-4 pt-4 border-top">
                             <h6 class="fw-bold text-danger mb-3">Acciones de administrador</h6>
                             <div class="d-grid gap-2 d-md-flex">
@@ -193,5 +205,49 @@
     .card-img-top {
         transition: transform 0.3s ease;
     }
+
+    /* Estilos para botón de favoritos en detalles */
+    .favorite-btn-detail {
+        transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .favorite-btn-detail:hover {
+        transform: scale(1.05);
+        border-color: #ef4444 !important;
+        color: #ef4444 !important;
+    }
+
+    .favorite-btn-detail.favorited {
+        background-color: #ef4444 !important;
+        border-color: #ef4444 !important;
+        color: white !important;
+    }
+
+    .favorite-btn-detail.favorited i {
+        font-style: normal;
+    }
 </style>
+
+<script>
+    // Cargar estado inicial del favorito al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const favBtn = document.getElementById('btnFavorito');
+        if(favBtn) {
+            const productId = favBtn.dataset.productId;
+            fetch(`/favoritos/check/${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.isFavorite) {
+                        favBtn.classList.add('favorited');
+                        const icon = favBtn.querySelector('i');
+                        if(icon) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking favorite:', error));
+        }
+    });
+</script>
 @endsection

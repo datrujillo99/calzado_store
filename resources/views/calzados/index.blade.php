@@ -3,16 +3,21 @@
 @section('content')
 <div style="max-width: 1400px; margin: 0 auto;">
     <!-- Page Header -->
-    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 class="page-title">Catálogo de Calzado</h1>
             <p class="page-subtitle">Calidad y estilo en cada paso</p>
         </div>
-        @if(Auth::check() && Auth::user()->role === 'admin')
-            <a href="{{ route('calzados.create') }}" style="padding: 0.75rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 150ms;">
-                <i class="fas fa-plus-circle"></i> Agregar Producto
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="http://172.17.1.127:8000/listar-pistas.html" target="_blank" style="padding: 0.75rem 1.5rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 150ms; cursor: pointer;">
+                <i class="fas fa-map"></i> Ir a Pistas
             </a>
-        @endif
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <a href="{{ route('calzados.create') }}" style="padding: 0.75rem 1.5rem; background: #10b981; color: white; border: none; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 150ms;">
+                    <i class="fas fa-plus-circle"></i> Agregar Producto
+                </a>
+            @endif
+        </div>
     </div>
 
     <!-- Success Messages -->
